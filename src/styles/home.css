@@ -1,3 +1,53 @@
+/* featured */
+.carousel-container {
+	margin-bottom: 20px;
+}
+
+.featured-carousel {
+	height: 700px;
+}
+
+.featured-row {
+	height: 650px;
+	display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.featured-desc {
+	min-width: 100px;
+	padding: 50px;
+}
+
+.featured-image-container {
+	display: flex !important;
+	position: relative;
+}
+
+.featured-image-container-box {
+	background-color: #F6F6F6;
+	padding: 5em 3em;
+	display: flex;
+	position: relative;
+	flex-grow: 1;
+	justify-content: center;
+}
+
+.featured-image {
+	object-fit: contain;
+}
+
+/* carousel dots */
+.ant-carousel .slick-dots li button {
+    background: black;
+    opacity: 0.4;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+    opacity: 1;
+    background: black;
+}
+
 /* card */
 .standard-card {
     max-width: 400px;
@@ -11,7 +61,7 @@
 .ant-card-cover {
 	background-color: #F6F6F6;
 	height: 375px;
-	padding: 2.5em 3em;
+	padding: 2.5em 2.5em;
 	display: flex;
 }
 

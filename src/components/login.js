@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Layout } from 'antd';
 
-
 const { Header, Content, Footer } = Layout;
 
 function Login() {
@@ -23,7 +22,7 @@ function Login() {
                             name="username"
                             rules={[{ required: true, message: 'Username is required' }]}
                         >
-                            <Input placeholder='username'/>
+                            <Input placeholder='username' autoComplete='username'/>
                         </Form.Item>
 
                         <Form.Item
@@ -31,7 +30,7 @@ function Login() {
                             name="password"
                             rules={[{ required: true, message: 'Password is required' }]}
                         >
-                            <Input.Password placeholder='password'/>
+                            <Input.Password placeholder='password' autoComplete='current-password'/>
                         </Form.Item>
 
                         <Form.Item style={{ display: 'flex', justifyContent: 'center' }} className='form-item'>

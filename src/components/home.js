@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Pagination, Dropdown } from 'antd';
+import { Row, Col, Pagination, Dropdown, Carousel, Image } from 'antd';
 import { useState, useRef } from 'react';
 import { ControlOutlined } from '@ant-design/icons';
 
@@ -98,9 +98,47 @@ function Home(data) {
         setCurrentPage(page);
     };
 
+    // select a random 3 items from the artData array and make it to a new array
+    // this array is then used to render the carousel
+    const randomItems = [];
+    for (let i = 0; i < 3; i++) {
+        randomItems.push(artData[Math.floor(Math.random() * artData.length)]);
+    }
+
+    // maps three random items to a carousel item
+    const carousel_items = randomItems.map((item, index) => {
+        return {
+            featuredContainer: (
+                <Row type='flex' key={index} className='featured-row'>
+                    <Col span={8} className='featured-desc'>
+                        <h2 style={{paddingTop: '20px'}}><i>{item.name}</i></h2>
+                        <h3 style={{color: '#6b6b6b'}}>{item.creator}</h3>
+                        
+                        <p style={{paddingTop: '20px'}}>{item.description.length > 40 ? item.description.slice(0, 400) + '...' : item.description}</p>
+                    </Col>
+                    <Col span={16} className='featured-image-container'>
+                        <div className='featured-image-container-box'>
+                            <Image className='featured-image' src={item.image_url} alt={item.name}/>
+                        </div>
+                    </Col>
+                </Row>
+            )
+        };
+    });
+
 
     return (
-        <div className='home-container'>
+        <div>
+            <div className='carousel-container'>
+                <Carousel className='featured-carousel' autoplay autoplaySpeed={8000}>
+                    {carousel_items.map((item, index) => (
+                        <div key={index}>
+                            {item.featuredContainer}
+                        </div>
+                    ))}
+                </Carousel>
+            </div>
+
             <Row type='flex' className='home-filter'>
                 <Dropdown menu={{onClick: handleFilterClick, items: filters}}>
                     <button style={{paddingLeft: '20px', color: 'black', background: 'none', border: 'none', cursor: 'pointer'}}>
@@ -110,9 +148,7 @@ function Home(data) {
 
                 <button onClick={handleResetFilters} style={{marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
                     Clear Filters
-                </button>
-
-                
+                </button> 
             </Row>
             
             <Row type='flex' className='home-row'>

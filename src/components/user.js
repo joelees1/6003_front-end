@@ -6,7 +6,7 @@ function Account(props) {
     return (
         <>
             <h1>Account ID: {id}</h1>
-            <p>add address information + update functionality for user and address</p>
+            <p>add user information + update functionality for user and address</p>
         </>
     );
 }

@@ -28,7 +28,7 @@ function Register() {
 								{ max: 18, message: 'keep between 4 and 19 characters' },
 								{ pattern: /^[a-zA-Z0-9_*]+$/, message: 'invalid character' }]}
 						>
-							<Input placeholder='Username' />
+							<Input placeholder='Username'/>
 						</Form.Item>
 
 						<Form.Item
@@ -74,7 +74,7 @@ function Register() {
 								{ min: 7, message: 'Password must be at least 7 characters long' }
 							]}
 						>
-							<Input.Password placeholder='Password' autocomplete='new-password'/>
+							<Input.Password placeholder='Password' autoComplete='new-password'/>
 						</Form.Item>
 
 						<Form.Item

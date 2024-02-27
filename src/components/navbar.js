@@ -6,11 +6,13 @@ const { Search } = Input;
 
 const navbar_items = [
     { key: "1", link: "/", label: "Home" },
-    { key: "2", link: "/account", label: "Account" },
-    { key: "3", link: "/login", label: "Login" },
-    { key: "4", link: "/register", label: "Register" },
-    { key: "5", link: "/categories", label: "Categories" },
-    { key: "6", link: "/orders", label: "Orders" },
+    { key: "2", link: "/newproduct", label: "Add Product" },
+    { key: "3", link: "/user", label: "User" },
+    { key: "4", link: "/users", label: "Users" },
+    { key: "5", link: "/orders", label: "Orders" },
+    { key: "6", link: "/categories", label: "Categories" },
+    { key: "7", link: "/login", label: "Login" },
+    { key: "8", link: "/register", label: "Register" }
 ];
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);

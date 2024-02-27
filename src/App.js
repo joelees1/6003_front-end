@@ -8,14 +8,17 @@ import './styles/login_register.css';
 import './styles/product.css';
 
 import Navbar from './components/navbar';
-import Home from './components/home';
-import Account from './components/account';
-import Product from './components/product';
 import Login from './components/login';
 import Register from './components/register';
+
+import Home from './components/home'; // home page (getAllProducts)
+import Product from './components/product'; // product page (getProductById)
+import NewProduct from './components/newProduct'; // new product page (createProduct)
 import Categories from './components/categories';
-import Order from './components/order';
-import Orders from './components/orders';
+import Users from './components/users'; // users page (getAllUsers)
+import User from './components/user'; // user page (getUserById)
+import Orders from './components/orders'; // orders page (getAllOrders)
+import Order from './components/order';	// order page (getOrderById)
 
 import image1 from './images/art1.png';
 import image2 from './images/art2.png';
@@ -59,17 +62,19 @@ function App() {
 	return (
 		<Router>
 			<Layout className='layout'>
-				<Header className='Header'>
+				<Header className='header'>
 					<Navbar />
 				</Header>
 
 				<Content style={{ padding: '0 50px' }}>
 					<Routes>
 						<Route path="/" element={<Home artData={artData} />} />
+						<Route path="/newproduct" element={<NewProduct />} />
 						<Route path="/products/:id" element={<Product artData={artData}/>} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/register" element={<Register />} />
-						<Route path="/account" element={<Account />} />
+						<Route path="/account" element={<User />} />
+						<Route path="/users" element={<Users />} />
 						<Route path="/orders" element={<Orders />} />
 						<Route path="/orders/:id" element={<Order />} />
 						<Route path="/categories" element={<Categories />} />
