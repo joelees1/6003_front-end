@@ -14,17 +14,33 @@ function Home(data) {
     const filters = [
         {
             key: '1',
-            label: 'Categories',
+            label: 'Availability',
             children: [
                 {
                     key: '1-1',
                     id: 1,
-                    label: '1: Digital Art',
+                    label: 'Available',
                 },
                 {
                     key: '1-2',
                     id: 2,
-                    label: '2: Traditional Art',
+                    label: 'Sold',
+                }
+            ]
+        },
+        {
+            key: '2',
+            label: 'Categories',
+            children: [
+                {
+                    key: '2-1',
+                    id: 1,
+                    label: 'Digital Art',
+                },
+                {
+                    key: '2-2',
+                    id: 2,
+                    label: 'Traditional Art',
                 }
             ]
         }
@@ -48,13 +64,16 @@ function Home(data) {
 
         // if the filter is categories, set the categoryId to the id of the child that was clicked
         const categoryId = filter.label === 'Categories' ? child.id : undefined;
+        const availabilityId = filter.label === 'Availability' ? child.id : undefined;
 
-        //console.log(`clicked: ${child.label}, ${filter.label}, cat: ${categoryId}`);
+        console.log(`clicked: ${child.label}, ${filter.label}, cat: ${categoryId}, avail: ${availabilityId}`);
 
         // filter the artData array based on the selected category
         const filteredArtData = data.artData.filter(artData => {
             if (categoryId !== undefined) {
                 return artData.category_id === categoryId;
+            } else if (availabilityId !== undefined) {
+                return artData.sold === availabilityId - 1;
             } else {
                 return true;
             }
@@ -79,6 +98,7 @@ function Home(data) {
         setCurrentPage(page);
     };
 
+
     return (
         <div className='home-container'>
             <Row type='flex' className='home-filter'>
@@ -91,6 +111,8 @@ function Home(data) {
                 <button onClick={handleResetFilters} style={{marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
                     Clear Filters
                 </button>
+
+                
             </Row>
             
             <Row type='flex' className='home-row'>
