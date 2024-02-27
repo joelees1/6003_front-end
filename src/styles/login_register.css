@@ -1,0 +1,33 @@
+@import '~antd/dist/reset.css';
+
+/* login page */
+
+.auth {
+    background-color: white;
+}
+
+.auth-layout-container {
+    display: flex;
+    justify-content: center;
+}
+
+.auth-page {
+    display: flex;
+    align-items: center;
+}
+
+.auth-header {
+    margin-bottom: 20px;
+}
+
+.auth-form {
+    width: 450px;
+}
+
+.ant-form-item {
+    padding: 5px 0;
+}
+
+.auth-footer {
+    padding-top: 15px;
+}

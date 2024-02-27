@@ -1,0 +1,44 @@
+@import '~antd/dist/reset.css';
+
+/* header/navbar */
+.Header {
+	display: flex;
+	align-items: center;
+	background: white;
+	border-bottom: 1px solid rgba(5, 5, 5, 0.05);
+	margin-bottom: 50px;
+	min-width: 600px;
+}
+
+/* hovered navbar link underline color */
+.ant-menu-item-active::after {
+	border-bottom: 1px solid gray !important;
+}
+
+/* active navbar link underline color */
+.ant-menu-item-selected::after {
+	border-bottom: 1px solid gray !important;
+}
+
+/* make the navbar text black when active */
+.ant-menu-item-selected {
+	color: black !important;
+}
+
+/* remove transition effect on navbar link underline */
+.ant-menu-item::after {
+	transition: none !important;
+}
+
+/* layout min height to make footer stay at bottom */
+.layout {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	background-color: white;
+}
+
+.Footer {
+	text-align: center;
+	min-width: 600px;
+}

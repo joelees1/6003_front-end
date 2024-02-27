@@ -1,0 +1,28 @@
+@import '~antd/dist/reset.css';
+
+.product-container {
+    min-width: 800px;
+    max-width: 1200px;
+    padding: 0 45px;
+}
+
+.product-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.product-image {
+    max-width: 30vw;
+    max-height: 30vw;
+    min-width: 600px;
+    min-height: 600px;
+}
+
+.product-info-container, .product-description-container {
+    padding: 10px 50px;
+}
+
+.product-description-container {
+    margin-bottom: 75px;
+}

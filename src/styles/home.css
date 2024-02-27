@@ -1,0 +1,45 @@
+/* card */
+.standard-card {
+    max-width: 400px;
+    min-width: 290px;
+	border: none;
+	border-radius: 0%;
+	padding: 20px 20px;
+}
+
+/* card cover */
+.ant-card-cover {
+	background-color: #F6F6F6;
+	height: 375px;
+	padding: 2.5em 3em;
+	display: flex;
+}
+
+/* card cover image */
+.ant-image {
+	display: flex !important;
+	position: relative;
+}
+
+/* make the image not have rounded edges */
+.ant-image-img {
+	border-radius: 0% !important;
+	object-fit: contain;
+}
+
+/* make the preview window not have rounded edges */
+.ant-image-mask {
+	border-radius: 0% !important;
+}
+
+/* pagination controls */
+.Pagination {
+	display: flex;
+	justify-content: center;
+	margin: 20px 0 40px 0;
+}
+
+/* pagination active item */
+.ant-pagination-item-active { /* active page border, a=active page number*/
+	border-color: grey !important;
+}
