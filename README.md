@@ -1,3 +1,7 @@
+6003CEM front-end repo:
+- this repo is the result of the previous repo sending a fatal error which wiped the commit history and prevented further commits, hence why the first commit is titled git error.
+- previous to this i added the pages needed for the api into my react spa, and have finished around half of these just using hard-coded data for now
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
