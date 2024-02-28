@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Input, Button, Layout, Upload, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 function NewProduct() {
     const onFinish = (values) => {
@@ -10,6 +10,7 @@ function NewProduct() {
         // Submit the new product details to the server
     };
 
+    // image upload validation
     const props = {
         beforeUpload: (file) => {
             const isAllowed = file.type === 'image/jpeg' || file.type === 'image/jpg';

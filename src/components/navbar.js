@@ -4,20 +4,23 @@ import { Link } from "react-router-dom";
 
 const { Search } = Input;
 
-const navbar_items = [
-    { key: "1", link: "/", label: "Home" },
-    { key: "2", link: "/newproduct", label: "Add Product" },
-    { key: "3", link: "/user", label: "User" },
-    { key: "4", link: "/users", label: "Users" },
-    { key: "5", link: "/orders", label: "Orders" },
-    { key: "6", link: "/categories", label: "Categories" },
-    { key: "7", link: "/login", label: "Login" },
-    { key: "8", link: "/register", label: "Register" }
-];
-
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const Navbar = (props) => {
+    //const currentUser = getCurrentUserId(); // Replace getCurrentUserId() with the function that retrieves the current user's id
+    const currentUser = 1; // Replace 1 with the current user's id
+
+    const navbar_items = [
+        { key: "1", link: "/", label: "Home" },
+        { key: "2", link: "/newproduct", label: "Add Product" },
+        { key: "3", link: `/users/${currentUser}`, label: "User" }, // Modify the link to include the current user's id
+        { key: "4", link: "/users", label: "Users" },
+        { key: "5", link: "/orders", label: "Orders" },
+        { key: "6", link: "/categories", label: "Categories" },
+        { key: "7", link: "/login", label: "Login" },
+        { key: "8", link: "/register", label: "Register" }
+    ];
+
     return (
         <>
             <h2 style={{ padding: "0 16px 0 0", fontWeight: "bold", display: 'flex', marginBottom: '0' }}>Coventry Art Gallery</h2>
