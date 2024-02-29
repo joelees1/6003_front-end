@@ -13,7 +13,7 @@ const Navbar = (props) => {
     const navbar_items = [
         { key: "1", link: "/", label: "Home" },
         { key: "2", link: "/newproduct", label: "Add Product" },
-        { key: "3", link: `/users/${currentUser}`, label: "User" }, // Modify the link to include the current user's id
+        { key: "3", link: `/users/${currentUser}`, label: "My Account" }, // Modify the link to include the current user's id
         { key: "4", link: "/users", label: "Users" },
         { key: "5", link: "/orders", label: "Orders" },
         { key: "6", link: "/categories", label: "Categories" },

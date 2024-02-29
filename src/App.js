@@ -74,7 +74,7 @@ function App() {
 						<Route path="/products/:id" element={<Product artData={artData}/>} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/register" element={<Register />} />
-						<Route path="/account" element={<User />} />
+						<Route path="/users/:id" element={<User />} />
 						<Route path="/users" element={<Users />} />
 						<Route path="/orders" element={<Orders />} />
 						<Route path="/orders/:id" element={<Order />} />

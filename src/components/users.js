@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Button, Input, Table, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
-/* 
+/*
  generates a table with the users of the website
  the table allows for searching orders by id, product id, total price, user id, address id, or status
 
@@ -159,7 +159,6 @@ function Users (props) {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a>Edit</a>
                     <a>Delete</a>
                 </Space>
             ),
