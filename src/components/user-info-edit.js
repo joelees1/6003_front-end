@@ -10,20 +10,13 @@ const UserInfoEdit = (props) => {
     const { user, onChange } = props;
     const [open, setOpen] = useState(false);
 
-    const [postData, setPostData] = useState({
-        loading: false,
-        error: false,
-        data: []
-    });
-
     const showModal = () => {
         setOpen(true);
     }
 
     const handleSubmit = (values) => {
-        setPostData({ ...postData, loading: true, error: false });
         console.log('Received values:', values);
-        // post
+        // post, add id to param
         //onChange(values); // logs it again
         setOpen(false);
     };

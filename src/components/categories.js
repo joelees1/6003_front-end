@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { Button, Input, Table, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
+import CategoryEdit from './category-edit';
+
 /* 
  generates a table with the categories from the database
  the table allows for searching for specific categories by id, name, or description 
@@ -128,7 +130,9 @@ function Categories(props) {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a>Edit</a>
+                    <CategoryEdit category={record} onChange={(category) => {
+                        console.log(category);
+                    }} />
                     <a>Delete</a>
                 </Space>
             ),

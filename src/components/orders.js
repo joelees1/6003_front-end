@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { Button, Input, Table, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
+import OrderEdit from './order-edit';
+
 /* 
  generates a table with the orders from the database
  the table allows for searching orders by id, product id, total price, user id, address id, or status
@@ -160,7 +162,9 @@ function Orders(props) {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a>Edit</a>
+                    <OrderEdit order={record} onChange={(order) => {
+                        console.log(order);
+                    }} />
                     <a>Delete</a>
                 </Space>
             ),
