@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Button, Input, Table, Space } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Input, Table, Space, Alert } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 /*
@@ -10,35 +10,62 @@ import { SearchOutlined } from '@ant-design/icons';
  https://ant.design/components/table
 */
 
-function Users (props) {
+function Users () {
+    const [showAlertMessage, setShowAlertMessage] = useState('');
+	const [showAlertType, setShowAlertType] = useState('');
+    const [data, setData] = useState([]); // Start with an empty array
 
-    // sample user data
-    let data = [
-        {
-            id: 1,
-            username: 'admin',
-            role: 'admin',
-            first_name: 'Admin',
-            last_name: 'Admin',
-            email: 'admin@gmail.com',
-            password: 'admin',
-            phone_number: '123456789', 
-            created_at: '2021-10-10',
-            updated_at: '2021-10-10'
-        },
-        {
-            id: 2,
-            username: 'user',
-            role: 'user',
-            first_name: 'User',
-            last_name: 'User',
-            email: 'user@gmail.com',
-            password: 'user',
-            phone_number: '987654321',
-            created_at: '2021-10-10',
-            updated_at: '2021-10-10'
+    // getAll the users from the db
+    useEffect(() => {
+        fetch('http://localhost:3030/api/v1/users')
+        .then(response => {
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                return response.json()
+                    .then(err => {
+                        throw new Error(err.error || 'Something went wrong');
+                    });
+            }
+            return response.json(); // If the response is OK, proceed.
+        })
+        .then(data => { // successful response
+            setShowAlertMessage("Users loaded successfully");
+            setShowAlertType('success');
+            setData(data);
+        })
+        .catch(error => { // unsuccessful response, with error from server
+            setShowAlertMessage(error.message);
+            setShowAlertType('error');
+            console.error(error);
+        });
+    }, []);
+
+    // delete a user from the db
+    const handleDelete = async (userId) => {
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/users/${userId}`, {
+                method: "DELETE"
+            });
+    
+            if (!response.ok) { 
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete user');
+            }
+    
+            const updatedData = data.filter(user => user.id !== userId);
+            setData(updatedData);
+            setShowAlertMessage('User deleted successfully');
+            setShowAlertType('success');
+    
+        } catch (error) {
+            console.error(error);
+            setShowAlertMessage('An error occurred during deletion');
+            setShowAlertType('error');
         }
-    ]
+    };
+
+	const showAlert = (type, message) => {
+		return ( <Alert message={message} type={type} showIcon closable style={{ marginBottom: '10px' }} /> );
+	}
 
     const searchInput = useRef(null); // search input
 
@@ -159,7 +186,7 @@ function Users (props) {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a>Delete</a>
+                    <a onClick={() => handleDelete(record.id)}>Delete</a>
                 </Space>
             ),
         },
@@ -168,6 +195,7 @@ function Users (props) {
     // return table
     return (
         <div style={{padding: '0 50px'}}>
+            {showAlertMessage && showAlert(showAlertType, showAlertMessage)}
             <Table dataSource={data} columns={columns} />;
         </div>
     );

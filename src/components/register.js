@@ -1,16 +1,59 @@
-import React from 'react';
-import { Form, Input, Button, Layout } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Layout, Alert } from 'antd';
 
 const { Header, Content } = Layout;
 
 function Register() {
+	const [showAlertMessage, setShowAlertMessage] = useState('');
+	const [showAlertType, setShowAlertType] = useState('');
+
 	const onFinish = (values) => {
-		console.log('Received values:', values);
+
+		const { confirm, ...data } = values;  // ignore the 'confirm' value
+
+		// Send a POST request to the server with the form data
+		fetch('http://localhost:3030/api/v1/users', {
+			method: "POST",
+			body: JSON.stringify(data),
+			headers: {
+				"Content-Type": "application/json"
+			}
+		})
+		.then(response => {
+			if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+				return response.json().then(err => {
+					throw new Error(err.error || 'Something went wrong');
+				});
+			}
+			return response.json(); // If the response is OK, proceed.
+		})
+		.then(data => { // successful response
+			setShowAlertMessage("User created successfully, redirecting to login page...");
+			setShowAlertType('success');
+			document.querySelector('form').reset(); // clear the form
+
+			// Redirect to the login page
+			setTimeout(() => {
+				window.location.href = '/login';
+			}, 1500);
+		})
+		.catch(error => { // unsuccessful response, with error from server
+			console.error(error);
+			setShowAlertMessage(error.message);
+			setShowAlertType('error');
+		});
 	};
+
+	// sends a message to the user based on the type of response
+	const showAlert = (type, message) => {
+		return ( <Alert message={message} type={type} showIcon closable style={{ marginBottom: '10px' }} /> );
+	}
+	
 
 	return (
 		<div className='auth-layout-container'>
 			<Layout className='auth auth-page'>
+				{showAlertMessage && showAlert(showAlertType, showAlertMessage)}
 				<Header className='auth auth-header'>
 					<h1 style={{ fontWeight: "bold" }}>Register</h1>
 				</Header>
@@ -18,7 +61,6 @@ function Register() {
 				<Content className='auth-form'>
 					<Form onFinish={onFinish} variant='filled'>
 
-						{/* add username validation */}
 						<Form.Item
 							hasFeedback 
 							label="Username"
