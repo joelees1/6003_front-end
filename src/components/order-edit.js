@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, Space, Select } from 'antd';
+import { Button, Modal, Form, Input, Space, Select, notification, InputNumber } from 'antd';
 
 /* 
 generate a modal to edit order information, used in order.js
@@ -9,20 +9,37 @@ this code uses structure adapted from antd documentation available at https://an
 const OrderEdit = (props) => {
     const { order, onChange } = props;
     const [open, setOpen] = useState(false);
+    const [api, contextHolder] = notification.useNotification(); // notification hook
 
     const showModal = () => {
         setOpen(true);
     }
 
-    // gets the values from the form and posts them to the database
-    const handleSubmit = (values) => {
-
-        const order_id = order.id;
-        // send the id in the param rather than adding to the values
+    // gets the values from the form and puts them to the database
+    const handleSubmit = async (values) => {
         console.log('Received values:', values);
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/orders/${order.id}`, {
+                method: "PUT",
+                body: JSON.stringify(values),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
 
-        // put
-        setOpen(false);
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Something went wrong');
+            }
+
+            //const updatedOrder = await response.json();
+            onChange(); // refresh the table
+            setOpen(false);
+        } 
+        catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
     };
 
     const handleCancel = () => {
@@ -31,6 +48,7 @@ const OrderEdit = (props) => {
 
     return (
         <>
+            {contextHolder}
             <Button onClick={showModal}>
                 Edit
             </Button>
@@ -46,19 +64,20 @@ const OrderEdit = (props) => {
                         rules={[{ required: true, message: 'Please input a product id' },
                         { pattern: /^\d+$/, message: 'Product ID must be a whole number' }]}
                     >
-                        <Input />
+                        <InputNumber />
                     </Form.Item>
 
                     <Form.Item
                         hasFeedback
                         label="Total Price"
                         name="total_price"
+                        type="number"
                         rules={[
                             { required: true, message: 'Please input a total price' },
                             { pattern: /^\d+(\.\d{1,2})?$/, message: 'Total Price must be a number with up to 2 decimal places' }
                         ]}
                     >
-                        <Input />
+                        <InputNumber />
                     </Form.Item>
 
                     <Form.Item
@@ -83,9 +102,8 @@ const OrderEdit = (props) => {
                         rules={[{ required: true, message: 'Please input an address id' },
                         { pattern: /^\d+$/, message: 'Address ID must be a whole number' }]}
                     >
-                        <Input />
+                        <InputNumber />
                     </Form.Item>
-
 
                     <Form.Item style={{ display: 'flex', justifyContent: 'end', margin: '0', padding: '0' }}>
                         <Space size={'large'}>

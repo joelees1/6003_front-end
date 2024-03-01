@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Layout, Alert } from 'antd';
+import { Form, Input, Button, Layout, notification } from 'antd';
 
 const { Header, Content } = Layout;
 
 function Register() {
-	const [showAlertMessage, setShowAlertMessage] = useState('');
-	const [showAlertType, setShowAlertType] = useState('');
+    const [api, contextHolder] = notification.useNotification();
 
 	const onFinish = (values) => {
 
@@ -28,8 +27,7 @@ function Register() {
 			return response.json(); // If the response is OK, proceed.
 		})
 		.then(data => { // successful response
-			setShowAlertMessage("User created successfully, redirecting to login page...");
-			setShowAlertType('success');
+			api.open({ message: 'User Created', description: `User has been created`, duration: 5, type: 'success' });
 			document.querySelector('form').reset(); // clear the form
 
 			// Redirect to the login page
@@ -39,21 +37,15 @@ function Register() {
 		})
 		.catch(error => { // unsuccessful response, with error from server
 			console.error(error);
-			setShowAlertMessage(error.message);
-			setShowAlertType('error');
+			api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
 		});
 	};
-
-	// sends a message to the user based on the type of response
-	const showAlert = (type, message) => {
-		return ( <Alert message={message} type={type} showIcon closable style={{ marginBottom: '10px' }} /> );
-	}
 	
 
 	return (
 		<div className='auth-layout-container'>
 			<Layout className='auth auth-page'>
-				{showAlertMessage && showAlert(showAlertType, showAlertMessage)}
+				{contextHolder}
 				<Header className='auth auth-header'>
 					<h1 style={{ fontWeight: "bold" }}>Register</h1>
 				</Header>

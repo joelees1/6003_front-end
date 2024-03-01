@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Table, Space, Alert } from 'antd';
+import { Button, Input, Table, Space, notification } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 /*
@@ -11,9 +11,8 @@ import { SearchOutlined } from '@ant-design/icons';
 */
 
 function Users () {
-    const [showAlertMessage, setShowAlertMessage] = useState('');
-	const [showAlertType, setShowAlertType] = useState('');
     const [data, setData] = useState([]); // Start with an empty array
+    const [api, contextHolder] = notification.useNotification();
 
     // getAll the users from the db
     useEffect(() => {
@@ -28,13 +27,18 @@ function Users () {
             return response.json(); // If the response is OK, proceed.
         })
         .then(data => { // successful response
-            setShowAlertMessage("Users loaded successfully");
-            setShowAlertType('success');
+            api.open({ message: 'Users Loaded', description:'Successfully loaded users from the database', duration: 5, type: 'success' });
+
+            // format created_at and updated_at dates
+            data.forEach(user => {
+                user.created_at = user.created_at ? new Date(user.created_at).toLocaleString() : null;
+                user.updated_at = user.updated_at ? new Date(user.updated_at).toLocaleString() : null;
+            });
             setData(data);
+
         })
         .catch(error => { // unsuccessful response, with error from server
-            setShowAlertMessage(error.message);
-            setShowAlertType('error');
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
             console.error(error);
         });
     }, []);
@@ -53,19 +57,13 @@ function Users () {
     
             const updatedData = data.filter(user => user.id !== userId);
             setData(updatedData);
-            setShowAlertMessage('User deleted successfully');
-            setShowAlertType('success');
+            api.open({ message: 'User Deleted', description:'Successfully deleted user from the database', duration: 5, type: 'success' });
     
         } catch (error) {
             console.error(error);
-            setShowAlertMessage('An error occurred during deletion');
-            setShowAlertType('error');
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
         }
     };
-
-	const showAlert = (type, message) => {
-		return ( <Alert message={message} type={type} showIcon closable style={{ marginBottom: '10px' }} /> );
-	}
 
     const searchInput = useRef(null); // search input
 
@@ -195,7 +193,7 @@ function Users () {
     // return table
     return (
         <div style={{padding: '0 50px'}}>
-            {showAlertMessage && showAlert(showAlertType, showAlertMessage)}
+            {contextHolder}
             <Table dataSource={data} columns={columns} />;
         </div>
     );
