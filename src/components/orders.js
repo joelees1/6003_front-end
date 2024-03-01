@@ -30,8 +30,6 @@ function Orders() {
             return response.json(); // If the response is OK, proceed.
         })
         .then(data => { // successful response
-            api.open({ message: 'Orders Loaded', description:'Successfully loaded orders from the database', duration: 5, type: 'success' });
-
             // format created_at and updated_at dates
             data.forEach(order => {
                 order.created_at = order.created_at ? new Date(order.created_at).toLocaleString() : null;
@@ -77,6 +75,12 @@ function Orders() {
     const handleReset = (clearFilters, selectedKeys, confirm, dataIndex) => {
         clearFilters();
         handleSearch(confirm); // resets the table
+    };
+
+    // handle order edit by re-fetching the orders
+    const handleOrderEdit = () => {
+        api.open({ message: 'Order Updated', description: 'Order has been updated', duration: 5, type: 'success' });
+        setRefetchTrigger(!refetchTrigger); // Toggle the state to trigger re-fetch
     };
 
     // search functionality for each column, generates the search field and buttons
@@ -134,12 +138,6 @@ function Orders() {
         }
     });
 
-    // handle order edit by re-fetching the orders
-    const handleOrderEdit = () => {
-        api.open({ message: 'Order Updated', description: 'Order has been updated', duration: 5, type: 'success' });
-        setRefetchTrigger(!refetchTrigger); // Toggle the state to trigger re-fetch
-    };
-
     // order table columns
     const columns = [
         {
@@ -187,7 +185,7 @@ function Orders() {
             render: (_, record) => (
                 <Space size="middle">
                     <OrderEdit order={record} onChange={handleOrderEdit} />
-                    <a onClick={() => handleDelete(record.id)}>Delete</a>
+                    <Button danger onClick={() => handleDelete(record.id)}>Delete</Button>
                 </Space>
             ),
         },

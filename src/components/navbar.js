@@ -17,8 +17,9 @@ const Navbar = (props) => {
         { key: "4", link: "/users", label: "Users" },
         { key: "5", link: "/orders", label: "Orders" },
         { key: "6", link: "/categories", label: "Categories" },
-        { key: "7", link: "/login", label: "Login" },
-        { key: "8", link: "/register", label: "Register" }
+        { key: "7", link: "/newcategory", label: "Add Category" },
+        { key: "8", link: "/login", label: "Login" },
+        { key: "9", link: "/register", label: "Register" }
     ];
 
     return (

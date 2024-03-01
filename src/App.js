@@ -14,7 +14,8 @@ import Register from './components/register';
 import Home from './components/home'; // home page (getAllProducts)
 import Product from './components/product'; // product page (getProductById)
 import NewProduct from './components/newProduct'; // new product page (createProduct)
-import Categories from './components/categories';
+import Categories from './components/categories'; // categories page (getAllCategories)
+import NewCategory from './components/newCategory'; // new category page (createCategory)
 import Users from './components/users'; // users page (getAllUsers)
 import User from './components/user'; // user page (getUserById)
 import Orders from './components/orders'; // orders page (getAllOrders)
@@ -78,6 +79,7 @@ function App() {
 						<Route path="/users" element={<Users />} />
 						<Route path="/orders" element={<Orders />} />
 						<Route path="/orders/:id" element={<Order />} />
+						<Route path="/newcategory" element={<NewCategory />} />
 						<Route path="/categories" element={<Categories />} />
 						<Route path="*" element={<NotFound />} />
 					</Routes>

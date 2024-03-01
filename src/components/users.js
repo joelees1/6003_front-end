@@ -27,8 +27,6 @@ function Users () {
             return response.json(); // If the response is OK, proceed.
         })
         .then(data => { // successful response
-            api.open({ message: 'Users Loaded', description:'Successfully loaded users from the database', duration: 5, type: 'success' });
-
             // format created_at and updated_at dates
             data.forEach(user => {
                 user.created_at = user.created_at ? new Date(user.created_at).toLocaleString() : null;
@@ -184,7 +182,7 @@ function Users () {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <a onClick={() => handleDelete(record.id)}>Delete</a>
+                    <Button danger onClick={() => handleDelete(record.id)}>Delete</Button>
                 </Space>
             ),
         },

@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Button, Input, Table, Space } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Input, Table, Space, notification } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 import CategoryEdit from './category-edit';
@@ -12,29 +12,61 @@ import CategoryEdit from './category-edit';
  https://ant.design/components/table 
 */
 
-function Categories(props) {
+function Categories() {
+    const [data, setData] = useState([]); // Start with an empty array
+    const [api, contextHolder] = notification.useNotification();
+    const [refetchTrigger, setRefetchTrigger] = useState(false); //  State to trigger the re-fetch
 
-    // sample category data
-    let data = [
-        {
-            id: 1,
-            name: 'Digital Art',
-            description: 'Art created using digital tools',
-            created_at: '2021-10-10',
-            updated_at: '2021-10-10'
-        },
-        {
-            id: 2,
-            name: 'Traditional Art',
-            description: 'Art created using traditional tools',
-            created_at: '2021-10-10',
-            updated_at: '2021-10-10'
+    // getAll categories from the db
+    useEffect(() => {
+        fetch('http://localhost:3030/api/v1/categories')
+        .then(response => {
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                return response.json()
+                    .then(err => {
+                        throw new Error(err.error || 'Something went wrong');
+                    });
+            }
+            return response.json(); // If the response is OK, proceed.
+        })
+        .then(data => { // successful response
+            // format created_at and updated_at dates
+            data.forEach(category => {
+                category.created_at = category.created_at ? new Date(category.created_at).toLocaleString() : null;
+                category.updated_at = category.updated_at ? new Date(category.updated_at).toLocaleString() : null;
+            });
+            setData(data);
+        })
+        .catch(error => { // unsuccessful response, with error from server
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+            console.error(error);
+        });
+    }, [refetchTrigger]);
+
+    // delete a category from the db
+    const handleDelete = async (categoryId) => {
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/categories/${categoryId}`, {
+                method: "DELETE"
+            });
+    
+            if (!response.ok) { 
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete category');
+            }
+    
+            const updatedData = data.filter(category => category.id !== categoryId);
+            setData(updatedData);
+            api.open({ message: 'Category Deleted', description: `Category ${categoryId} has been deleted`, duration: 5, type: 'success' });
+
+        } catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
         }
-    ]
-
-    const searchInput = useRef(null); // search input
+    };
 
     // search functionality
+    const searchInput = useRef(null); // search input
     const handleSearch = (confirm) => {
         confirm(); // close the search dropdown
     };
@@ -43,6 +75,12 @@ function Categories(props) {
     const handleReset = (clearFilters, selectedKeys, confirm, dataIndex) => {
         clearFilters();
         handleSearch(confirm);
+    };
+
+    // handle order edit by re-fetching the orders
+    const handleCategoryEdit = () => {
+        api.open({ message: 'Category Updated', description: 'Category has been updated', duration: 5, type: 'success' });
+        setRefetchTrigger(!refetchTrigger); // Toggle the state to trigger re-fetch
     };
 
     // search functionality for each column, generates the search field and buttons
@@ -130,10 +168,8 @@ function Categories(props) {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <CategoryEdit category={record} onChange={(category) => {
-                        console.log(category);
-                    }} />
-                    <a>Delete</a>
+                    <CategoryEdit category={record} onChange={handleCategoryEdit} />
+                    <Button danger onClick={() => handleDelete(record.id)}>Delete</Button>
                 </Space>
             ),
         },
@@ -142,6 +178,7 @@ function Categories(props) {
     // return table
     return (
         <div style={{padding: '0 50px'}}>
+            {contextHolder}
             <Table dataSource={data} columns={columns} />;
         </div>
     );

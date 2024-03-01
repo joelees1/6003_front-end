@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, Space, Select, notification, InputNumber } from 'antd';
+import { Button, Modal, Form, Space, Select, notification, InputNumber } from 'antd';
 
 /* 
 generate a modal to edit order information, used in order.js
@@ -17,7 +17,7 @@ const OrderEdit = (props) => {
 
     // gets the values from the form and puts them to the database
     const handleSubmit = async (values) => {
-        console.log('Received values:', values);
+        //console.log('Received values:', values);
         try {
             const response = await fetch(`http://localhost:3030/api/v1/orders/${order.id}`, {
                 method: "PUT",
@@ -32,7 +32,6 @@ const OrderEdit = (props) => {
                 throw new Error(errorData.error || 'Something went wrong');
             }
 
-            //const updatedOrder = await response.json();
             onChange(); // refresh the table
             setOpen(false);
         } 
@@ -64,7 +63,7 @@ const OrderEdit = (props) => {
                         rules={[{ required: true, message: 'Please input a product id' },
                         { pattern: /^\d+$/, message: 'Product ID must be a whole number' }]}
                     >
-                        <InputNumber />
+                        <InputNumber style={{width: '100%'}}/>
                     </Form.Item>
 
                     <Form.Item
@@ -77,7 +76,7 @@ const OrderEdit = (props) => {
                             { pattern: /^\d+(\.\d{1,2})?$/, message: 'Total Price must be a number with up to 2 decimal places' }
                         ]}
                     >
-                        <InputNumber />
+                        <InputNumber style={{width: '100%'}}/>
                     </Form.Item>
 
                     <Form.Item
@@ -102,13 +101,13 @@ const OrderEdit = (props) => {
                         rules={[{ required: true, message: 'Please input an address id' },
                         { pattern: /^\d+$/, message: 'Address ID must be a whole number' }]}
                     >
-                        <InputNumber />
+                        <InputNumber style={{width: '100%'}}/>
                     </Form.Item>
 
                     <Form.Item style={{ display: 'flex', justifyContent: 'end', margin: '0', padding: '0' }}>
                         <Space size={'large'}>
-                            <Button danger onClick={handleCancel}>Cancel</Button>
-                            <Button style={{ backgroundColor: 'black', color: 'white' }} htmlType="submit">Submit</Button>
+                            <Button style={{ backgroundColor: 'black', color: 'white' }} onClick={handleCancel}>Cancel</Button>
+                            <Button danger htmlType="submit">Submit</Button>
                         </Space>
                     </Form.Item>
 

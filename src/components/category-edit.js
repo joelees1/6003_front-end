@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, Space } from 'antd';
+import { Button, Modal, Form, Input, Space, notification } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 
 /* 
@@ -10,21 +10,36 @@ this code uses structure adapted from antd documentation available at https://an
 const CategoryEdit = (props) => {
     const { category, onChange } = props;
     const [open, setOpen] = useState(false);
+    const [api, contextHolder] = notification.useNotification(); // notification hook
 
     const showModal = () => {
         setOpen(true);
     }
 
-    // gets the values from the form and posts them to the database
-    const handleSubmit = (values) => {
-
-        const category_id = category.id;
-
-        // send the id in the param rather than adding to the values
+    // gets the values from the form and puts them to the database
+    const handleSubmit = async (values) => {
         console.log('Received values:', values);
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/categories/${category.id}`, {
+                method: "PUT",
+                body: JSON.stringify(values),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
 
-        // put
-        setOpen(false);
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Something went wrong');
+            }
+
+            onChange(); // refresh the table
+            setOpen(false);
+        }
+        catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
     };
 
     const handleCancel = () => {
@@ -33,6 +48,7 @@ const CategoryEdit = (props) => {
 
     return (
         <>
+            {contextHolder}
             <Button onClick={showModal}>
                 Edit
             </Button>
@@ -62,8 +78,8 @@ const CategoryEdit = (props) => {
 
                     <Form.Item style={{ display: 'flex', justifyContent: 'end', margin: '0', padding: '0' }}>
                         <Space size={'large'}>
-                            <Button danger onClick={handleCancel}>Cancel</Button>
-                            <Button style={{ backgroundColor: 'black', color: 'white' }} htmlType="submit">Submit</Button>
+                        <Button style={{ backgroundColor: 'black', color: 'white' }} onClick={handleCancel}>Cancel</Button>
+                            <Button danger htmlType="submit">Submit</Button>
                         </Space>
                     </Form.Item>
 
