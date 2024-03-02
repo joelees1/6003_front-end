@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Layout, notification } from 'antd';
 
 const { Header, Content } = Layout;
@@ -8,7 +8,7 @@ function Register() {
 
 	const onFinish = (values) => {
 
-		const { confirm, ...data } = values;  // ignore the 'confirm' value
+		const { confirm, ...data } = values;
 
 		// Send a POST request to the server with the form data
 		fetch('http://localhost:3030/api/v1/users', {

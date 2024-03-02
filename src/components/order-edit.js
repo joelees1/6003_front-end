@@ -17,7 +17,6 @@ const OrderEdit = (props) => {
 
     // gets the values from the form and puts them to the database
     const handleSubmit = async (values) => {
-        //console.log('Received values:', values);
         try {
             const response = await fetch(`http://localhost:3030/api/v1/orders/${order.id}`, {
                 method: "PUT",

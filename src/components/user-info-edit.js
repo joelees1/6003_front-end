@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, Space } from 'antd';
+import { Button, Modal, Form, Input, Space, notification, Select } from 'antd';
 
 /* 
 generate a modal to edit user information, used in user.js
@@ -9,24 +9,47 @@ this code uses structure adapted from antd documentation available at https://an
 const UserInfoEdit = (props) => {
     const { user, onChange } = props;
     const [open, setOpen] = useState(false);
+    const [api, contextHolder] = notification.useNotification();
 
     const showModal = () => {
         setOpen(true);
-    }
-
-    const handleSubmit = (values) => {
-        console.log('Received values:', values);
-        // post, add id to param
-        //onChange(values); // logs it again
-        setOpen(false);
     };
 
     const handleCancel = () => {
+        document.querySelector('form').reset(); // reset/clear the form
         setOpen(false);
     };
 
+    // gets the values from the form and puts them to the database
+    const handleSubmit = async (values) => {
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/users/${user.id}`, {
+                method: "PUT",
+                body: JSON.stringify(values),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Something went wrong');
+            }
+
+            onChange(); // refresh the table
+            document.querySelector('form').reset(); // clear the form so password is not remembered
+            setOpen(false);
+        } 
+        catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
+    };
+
+
     return (
         <>
+            {contextHolder}
             <Button onClick={showModal}>
                 Edit
             </Button>
@@ -38,12 +61,12 @@ const UserInfoEdit = (props) => {
                         hasFeedback
                         label="Role"
                         name="role"
-                        rules={[
-                            { required: true, message: 'Role is required' },
-                            { pattern: /^(admin|user)$/, message: 'Role must be either admin or user' }
-                        ]}
+                        rules={[{ required: true, message: 'Please choose a role' }]}
                     >
-                        <Input />
+                        <Select>
+                            <Select.Option value="admin">Admin</Select.Option>
+                            <Select.Option value="user">User</Select.Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item

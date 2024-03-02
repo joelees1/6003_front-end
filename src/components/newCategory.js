@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Layout, notification } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 
@@ -8,8 +7,6 @@ function NewCategory() {
     const [api, contextHolder] = notification.useNotification();
 
 	const onFinish = (values) => {
-        console.log('New Category details:', values);
-
 		const { confirm, ...data } = values;
 
 		// Send a POST request to the server with the form data
