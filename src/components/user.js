@@ -116,7 +116,7 @@ function Account(props) {
                 console.error(error);
                 setUserData(null);
             });
-    }, [refetchTrigger]);
+    }, [refetchTrigger, id, api]);
 
     // handle user edit
     const handleUserEdit = () => {

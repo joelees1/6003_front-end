@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Space, Select, notification, InputNumber, Input } from 'antd';
+import { Button, Modal, Form, Space, notification, Input } from 'antd';
 
 /* 
 generate a modal to edit order information, used in order.js

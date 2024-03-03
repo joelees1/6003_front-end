@@ -41,7 +41,7 @@ function Categories() {
             api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
             console.error(error);
         });
-    }, [refetchTrigger]);
+    }, [refetchTrigger, api]);
 
     // delete a category from the db
     const handleDelete = async (categoryId) => {

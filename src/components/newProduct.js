@@ -13,9 +13,9 @@ function NewProduct() {
     // image upload validation
     const props = {
         beforeUpload: (file) => {
-            const isAllowed = file.type === 'image/jpeg' || file.type === 'image/jpg';
+            const isAllowed = file.type === 'image/png';
             if (!isAllowed) {
-                message.error(`${file.name} is not a JPEG or JPG file`, 5); // Display message for 5 seconds
+                message.error(`${file.name} is not a PNG file`, 5); // Display message for 5 seconds
             }
             return (isAllowed) || Upload.LIST_IGNORE;
         },

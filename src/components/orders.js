@@ -41,7 +41,7 @@ function Orders() {
             api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
             console.error(error);
         });
-    }, [refetchTrigger]);
+    }, [refetchTrigger, api]);
 
     // delete an order from the db
     const handleDelete = async (orderId) => {

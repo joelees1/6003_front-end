@@ -27,11 +27,38 @@ function getIcon(sold) {
 const ArtCard = ({ id, name, description, creator, price, sold, category_id, image_url }) => {
     const Status = getIcon(sold);
 
+    const [productImage, setProductImage] = React.useState(null);
+
+    // fetch product image inside a useEffect hook
+    // adding the id as a dependency to the useEffect hook to prevent infinite loop
+    React.useEffect(() => {
+        fetch(`http://localhost:3030/api/v1/products/${id}/image`)
+            .then(response => {
+                if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                    if (response.status === 404) {
+                        return;
+                    }
+                    return response
+                        .then(err => {
+                            throw new Error(err.error || 'Something went wrong');
+                        });
+                }
+                return response.blob(); // If the response is OK, proceed.
+            })
+            .then(imageBlob => {
+                const imageObjectURL = URL.createObjectURL(imageBlob);
+                setProductImage(imageObjectURL);
+            })
+            .catch(error => { // unsuccessful response
+                console.error(error);
+            });
+    } , [id]);
+
     // returns a card with the art work's name, creator and status
     return (
         <Card
             className="standard-card"
-            cover={<Image alt="art work" src={image_url} fallback={errorLoading} className='card-cover'/>}
+            cover={<Image alt="art work" src={productImage} fallback={errorLoading} className='card-cover'/>}
         >
             <Row style={{display: 'flex', alignItems: 'baseline'}}>
                 <Col style={{width: '70%', display: 'flex'}}>

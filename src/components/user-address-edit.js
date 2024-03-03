@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, Space, notification, Select } from 'antd';
+import { Button, Modal, Form, Input, Space, notification } from 'antd';
 
 /* 
 generate a modal to edit address information, used in user.js

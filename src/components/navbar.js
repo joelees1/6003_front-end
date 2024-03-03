@@ -1,10 +1,6 @@
 import React from 'react';
-import { Menu, Input } from 'antd';
+import { Menu } from 'antd';
 import { Link } from "react-router-dom";
-
-const { Search } = Input;
-
-const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const Navbar = (props) => {
     //const currentUser = getCurrentUserId(); // Replace getCurrentUserId() with the function that retrieves the current user's id
@@ -33,8 +29,6 @@ const Navbar = (props) => {
                     </Menu.Item>
                 ))}
             </Menu>
-            
-            <Search placeholder="Search works, artists" allowClear onSearch={onSearch} style={{ width: 250 }} />
         </>
     );
 };

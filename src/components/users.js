@@ -39,7 +39,7 @@ function Users () {
             api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
             console.error(error);
         });
-    }, []);
+    }, [api]);
 
     // delete a user from the db
     const handleDelete = async (userId) => {

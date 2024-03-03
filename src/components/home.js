@@ -1,16 +1,53 @@
-import React from 'react';
-import { Row, Col, Pagination, Dropdown, Carousel, Image } from 'antd';
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Row, Col, Pagination, Dropdown, Carousel, notification } from 'antd';
 import { ControlOutlined } from '@ant-design/icons';
 
 import ArtCard from '../components/card';
+import CarouselItems from '../components/carousel';
 
 
-function Home(data) {
+function Home() {
+    const [artData, setArtData] = useState(null);
+    const [initialArtData, setInitialArtData] = useState();
+    const [randomItems, setRandomItems] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalArtLength, setTotalArtLength] = useState(10);
+    const initialTotalArtLength = useRef();
+    const [api, contextHolder] = notification.useNotification();
+
+    // fetch the art data from the database
+    useEffect(() => {
+        fetch('http://localhost:3030/api/v1/products')
+            .then(response => {
+                if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                    return response.json()
+                        .then(err => {
+                            throw new Error(err.error || 'Something went wrong');
+                        });
+                }
+                return response.json(); // If the response is OK, proceed.
+            })
+            .then(data => { // successful response
+                setArtData(data);
+                setInitialArtData(data);
+                setTotalArtLength(data.length);
+                initialTotalArtLength.current = data.length; // set the initial totalArtLength
+                // get 3 random items from the artData array
+                const randomItems = []; 
+                for (let i = 0; i < 3; i++) {
+                    const randomIndex = Math.floor(Math.random() * data.length);
+                    randomItems.push(data[randomIndex]);
+                }
+                setRandomItems(randomItems);
+                console.log(randomItems);
+            })
+            .catch(error => { // unsuccessful response, with error from server
+                api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+                console.error(error);
+            });
+    }, [api]);
+
     /* Filters */
-    const [artData, setArtData] = useState(data.artData);
-    const initialArtData = useRef(data.artData);
-
     const filters = [
         {
             key: '1',
@@ -47,17 +84,17 @@ function Home(data) {
     ];
 
     const handleResetFilters = () => {
+        if (!artData) return;
         // when the filters are reset, both the artData array and the totalArtLength are reset
         // this resets the page to show all items and correct pagination
-        setArtData(initialArtData.current);
+        setArtData(initialArtData);
         setCurrentPage(1);
         setTotalArtLength(initialTotalArtLength.current);
     };
 
     const handleFilterClick = (e) => {
-        handleResetFilters(); // reset before applying new filters
+        if (!artData) return;
 
-        // allows further filters to be added
         // find the filter and the child that was clicked
         const filter = filters.find(filter => filter.children.some(child => child.key === e.key));
         const child = filter.children.find(child => child.key === e.key);
@@ -65,11 +102,10 @@ function Home(data) {
         // if the filter is categories, set the categoryId to the id of the child that was clicked
         const categoryId = filter.label === 'Categories' ? child.id : undefined;
         const availabilityId = filter.label === 'Availability' ? child.id : undefined;
-
-        console.log(`clicked: ${child.label}, ${filter.label}, cat: ${categoryId}, avail: ${availabilityId}`);
+        //console.log(`clicked: ${child.label}, ${filter.label}, cat: ${categoryId}, avail: ${availabilityId}`);
 
         // filter the artData array based on the selected category
-        const filteredArtData = data.artData.filter(artData => {
+        const filteredArtData = artData.filter(artData => {
             if (categoryId !== undefined) {
                 return artData.category_id === categoryId;
             } else if (availabilityId !== undefined) {
@@ -84,145 +120,66 @@ function Home(data) {
     };
 
     /* Pagination */
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalArtLength, setTotalArtLength] = useState(data.artData.length);
-    const initialTotalArtLength = useRef(data.artData.length);
-
     const pageSize = 12;
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    
-    const currentArtData = artData.slice(startIndex, endIndex);
-
+    const currentArtData = artData && artData.length > 0 ? artData.slice(startIndex, endIndex) : [];
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
-    // select a random 3 items from the artData array and make it to a new array
-    // this array is then used to render the carousel
-    const randomItems = [];
-    for (let i = 0; i < 3; i++) {
-        randomItems.push(artData[Math.floor(Math.random() * artData.length)]);
-    }
-
-    // maps three random items to a carousel item
-    const carousel_items = randomItems.map((item, index) => {
-        return {
-            featuredContainer: (
-                <Row type='flex' key={index} className='featured-row'>
-                    <Col span={8} className='featured-desc'>
-                        <h2 style={{paddingTop: '20px'}}><i>{item.name}</i></h2>
-                        <h3 style={{color: '#6b6b6b'}}>{item.creator}</h3>
-                        
-                        <p style={{paddingTop: '20px'}}>{item.description.length > 40 ? item.description.slice(0, 400) + '...' : item.description}</p>
-                    </Col>
-                    <Col span={16} className='featured-image-container'>
-                        <div className='featured-image-container-box'>
-                            <Image className='featured-image' src={item.image_url} alt={item.name}/>
-                        </div>
-                    </Col>
-                </Row>
-            )
-        };
-    });
-
-
+          
     return (
         <div>
-            <div className='carousel-container'>
-                <Carousel className='featured-carousel' autoplay autoplaySpeed={8000}>
-                    {carousel_items.map((item, index) => (
-                        <div key={index}>
-                            {item.featuredContainer}
+            {contextHolder}
+            {artData && (
+                <>
+                    {randomItems && randomItems.length > 0 && (
+                        <div className='carousel-container'>
+                            <Carousel className='featured-carousel' autoplay autoplaySpeed={8000}>
+                                {randomItems.map((item, index) => (
+                                    <CarouselItems item={item} index={index} />
+                                ))}
+                            </Carousel>
                         </div>
-                    ))}
-                </Carousel>
-            </div>
+                    )}
 
-            <Row type='flex' className='home-filter'>
-                <Dropdown menu={{onClick: handleFilterClick, items: filters}}>
-                    <button style={{paddingLeft: '20px', color: 'black', background: 'none', border: 'none', cursor: 'pointer'}}>
-                        <ControlOutlined style={{paddingRight: '5px'}}/> Filter by
-                    </button>
-                </Dropdown>
+                    <Row type='flex' className='home-filter'>
+                        <Dropdown menu={{onClick: handleFilterClick, items: filters}}>
+                            <button style={{paddingLeft: '20px', color: 'black', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                <ControlOutlined style={{paddingRight: '5px'}}/> Filter by
+                            </button>
+                        </Dropdown>
 
-                <button onClick={handleResetFilters} style={{marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
-                    Clear Filters
-                </button> 
-            </Row>
-            
-            <Row type='flex' className='home-row'>
-                {/* iterate over artData array and render an ArtCard for each object */}
-                {currentArtData.map((art, index) => (
-                    <Col sm={12} md={12} lg={8} xl={6} key={index} align="center" className='home-column'>
-                        <ArtCard {...art} />
-                    </Col>
-                ))}
-            </Row>
+                        <button onClick={handleResetFilters} style={{marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
+                            Clear Filters
+                        </button> 
+                    </Row>
 
-            {/* If length of artData is greater than pageSize, render Pagination */}
-            {totalArtLength > pageSize && (
-                <Pagination
-                    className='Pagination'
-                    defaultCurrent={currentPage}
-                    total={totalArtLength}
-                    pageSize={pageSize}
-                    onChange={handlePageChange}
-                    current={currentPage}
-                />
+                    <Row type='flex' className='home-row'>
+                        {/* iterate over artData array and render an ArtCard for each object */}
+                        {currentArtData.map((art, index) => (
+                            <Col sm={12} md={12} lg={8} xl={6} key={index} align="center" className='home-column'>
+                                <ArtCard {...art} />
+                            </Col>
+                        ))}
+                    </Row>
+
+                    {/* If length of artData is greater than pageSize, render Pagination */}
+                    {totalArtLength > pageSize && (
+                        <Pagination
+                            className='Pagination'
+                            defaultCurrent={currentPage}
+                            total={totalArtLength}
+                            pageSize={pageSize}
+                            onChange={handlePageChange}
+                            current={currentPage}
+                        />
+                    )}
+                </>
             )}
         </div>
     );
-}
-
-/* class example of the same code */
-class HomeClass extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            artData: props.artData,
-            currentPage: 1
-        };
-    }
-
-    handlePageChange = (page) => {
-        this.setState({ currentPage: page });
-    };
-
-    render() {
-        if (!this.state.artData) {
-            return <div>Loading...</div>;
-        }
-
-        const pageSize = 12;
-        const startIndex = (this.state.currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const currentArtData = this.state.artData.slice(startIndex, endIndex);
-
-        const ArtGrid = currentArtData.map((art, index) => (
-            <Col span={6} key={index} align="center">
-                <ArtCard {...art} />
-            </Col>
-        ));
-
-        return (
-            <>
-                <Row type="flex">
-                    {ArtGrid}
-                </Row>
-
-                {this.state.artData.length > pageSize && (
-                    <Pagination
-                        className='Pagination'
-                        defaultCurrent={1}
-                        total={this.state.artData.length}
-                        pageSize={pageSize}
-                        onChange={this.handlePageChange}
-                    />
-                )}
-            </>
-        );
-    }
 }
 
 export default Home;
