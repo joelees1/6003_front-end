@@ -1,11 +1,11 @@
 import React from 'react';
-import { Form, Input, Button, Layout, Upload, message } from 'antd';
+import { Form, Input, Button, Layout, Upload, notification } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 
 function NewProduct() {
-    const [api, contextHolder] = message.useMessage();
+    const [api, contextHolder] = notification.useNotification();
 
     const onFinish = async (values) => {
         console.log('New product details:', values);

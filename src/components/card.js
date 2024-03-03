@@ -62,7 +62,7 @@ const ArtCard = ({ id, name, description, creator, price, sold, category_id, ima
         >
             <Row style={{display: 'flex', alignItems: 'baseline'}}>
                 <Col style={{width: '70%', display: 'flex'}}>
-                    <h3><a href={`/products/${id}`} style={{ color: 'black' }}>{name}</a></h3>
+                    <h3><a href={`/products/${id}`}>{name}</a></h3>
                 </Col>
 
                 <Col style={{ width: '30%', display: 'flex', justifyContent: 'flex-end' }}>

@@ -39,7 +39,7 @@ const CarouselItems = ({item, index}) => {
             {contextHolder}
             <Row type='flex' key={index} className='featured-row'>
                 <Col span={8} className='featured-desc'>
-                    <h2 style={{paddingTop: '20px'}}><i>{item.name}</i></h2>
+                    <a href={`/products/${item.id}`}><h2 style={{paddingTop: '20px'}}><i>{item.name}</i></h2></a>
                     <h3 style={{color: '#6b6b6b'}}>{item.creator}</h3>
                     
                     <p style={{paddingTop: '20px'}}>{item.description.length > 40 ? item.description.slice(0, 400) + '...' : item.description}</p>

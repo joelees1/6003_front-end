@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Image, Row, Col, Button, ConfigProvider, Result, notification } from 'antd';
+import { Image, Row, Col, Button, ConfigProvider, Result, notification, Space } from 'antd';
 import { CloseCircleTwoTone } from '@ant-design/icons'; /* can cause memory overflow in codio */
 import errorLoading from '../images/error-loading.png';
+
+import ProductEdit from './product-edit';
 
 
 function Product() {
@@ -70,6 +72,33 @@ function Product() {
         );
     }
 
+    // log updated successful product
+    const handleProductEdit = () => {
+        setRefetchTrigger(!refetchTrigger);
+    };
+
+    // delete a product from the db
+    const handleDelete = async () => {
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/products/${id}`, {
+                method: "DELETE"
+            });
+    
+            if (!response.ok) { 
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete product');
+            }
+
+            // redirect to the products page
+            api.open({ message: 'Product Deleted', description: `Product ${id} has been deleted`, duration: 5, type: 'success' });
+            window.location.href = '/';
+
+        } catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
+    };
+
     return (
         <div style={{ display: 'flex', justifyContent: 'center', minWidth: '800px'}}>
             {contextHolder}
@@ -102,6 +131,13 @@ function Product() {
 
                 <Row className='product-description-container'>
                     <p>{product.description}</p>
+                </Row>
+
+                <Row style={{justifyContent: 'center', marginBottom: '30px'}}>
+                    <Space>
+                        <ProductEdit product={product} onChange={handleProductEdit} />
+                        <Button danger onClick={() => handleDelete()}>Delete</Button>
+                    </Space>
                 </Row>
             </div>
         </div>
