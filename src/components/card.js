@@ -25,7 +25,7 @@ function getIcon(sold) {
     );
 }
 
-const ArtCard = ({ id, name, creator, sold }) => {
+const ArtCard = ({ id, name, creator, sold, links }) => {
     const Status = getIcon(sold);
 
     const [productImage, setProductImage] = React.useState(null);
@@ -33,7 +33,7 @@ const ArtCard = ({ id, name, creator, sold }) => {
     // fetch product image inside a useEffect hook
     // adding the id as a dependency to the useEffect hook to prevent infinite loop
     React.useEffect(() => {
-        fetch(`http://localhost:3030/api/v1/products/${id}/image`)
+        fetch(links.image)
             .then(response => {
                 if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                     if (response.status === 404) {

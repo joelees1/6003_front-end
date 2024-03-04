@@ -39,6 +39,7 @@ function Home() {
                     randomItems.push(data[randomIndex]);
                 }
                 setRandomItems(randomItems);
+                console.log(data)
             })
             .catch(error => { // unsuccessful response, with error from server
                 api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });

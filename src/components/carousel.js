@@ -8,10 +8,10 @@ const CarouselItems = ({item, index}) => {
     const [api, contextHolder] = notification.useNotification();
     const [productImage, setProductImage] = React.useState(null);
 
-    // fetch product image inside a useEffect hook
+    // fetch product image using hateoas link
     // adding the item.id as a dependency to the useEffect hook to prevent infinite loop
     React.useEffect(() => {
-        fetch(`http://localhost:3030/api/v1/products/${item.id}/image`)
+        fetch(item.links.image)
             .then(response => {
                 if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                     if (response.status === 404) {
