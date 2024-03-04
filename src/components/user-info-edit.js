@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form, Input, Space, notification, Select } from 'antd';
+import UserContext from '../contexts/user';
+import { useNavigate } from 'react-router-dom';
 
 /* 
 generate a modal to edit user information, used in user.js
@@ -7,9 +9,11 @@ this code uses structure adapted from antd documentation available at https://an
 */
 
 const UserInfoEdit = (props) => {
+    const userContext = React.useContext(UserContext);
     const { user, onChange } = props;
     const [open, setOpen] = useState(false);
     const [api, contextHolder] = notification.useNotification();
+    const navigate = useNavigate();
 
     const showModal = () => {
         setOpen(true);
@@ -27,7 +31,8 @@ const UserInfoEdit = (props) => {
                 method: "PUT",
                 body: JSON.stringify(values),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -38,6 +43,14 @@ const UserInfoEdit = (props) => {
 
             onChange(); // refresh the table
             document.querySelector('form').reset(); // clear the form so password is not remembered
+
+            // if the user changes their username or email, they will be logged out
+            // if values submitted are different to those in the user context, the user will be logged out
+            if (values.username !== userContext.user.username || values.email !== userContext.user.email) {
+                userContext.logout();
+                navigate('/login');
+            }
+
             setOpen(false);
         } 
         catch (error) {
@@ -57,17 +70,19 @@ const UserInfoEdit = (props) => {
             <Modal title="Edit User Information" okText="Submit" open={open} onOk={handleSubmit} onCancel={handleCancel} footer={[]}>
 				<Form variant='filled' initialValues={user} onFinish={handleSubmit}>
 
-                    <Form.Item
-                        hasFeedback
-                        label="Role"
-                        name="role"
-                        rules={[{ required: true, message: 'Please choose a role' }]}
-                    >
-                        <Select>
-                            <Select.Option value="admin">Admin</Select.Option>
-                            <Select.Option value="user">User</Select.Option>
-                        </Select>
-                    </Form.Item>
+                    {userContext.user.role === 'admin' && (
+                        <Form.Item
+                            hasFeedback
+                            label="Role"
+                            name="role"
+                            rules={[{ required: true, message: 'Please choose a role' }]}
+                        >
+                            <Select>
+                                <Select.Option value="admin">Admin</Select.Option>
+                                <Select.Option value="user">User</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    )}
 
                     <Form.Item
                         hasFeedback

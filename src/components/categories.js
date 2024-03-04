@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Table, Space, notification } from 'antd';
+import { Button, Input, Table, Space, notification, Result } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
+import UserContext from '../contexts/user';
 import CategoryEdit from './category-edit';
 
 /* 
@@ -13,13 +14,18 @@ import CategoryEdit from './category-edit';
 */
 
 function Categories() {
+    const { user } = React.useContext(UserContext);
+
     const [data, setData] = useState([]); // Start with an empty array
     const [api, contextHolder] = notification.useNotification();
     const [refetchTrigger, setRefetchTrigger] = useState(false); //  State to trigger the re-fetch
 
     // getAll categories from the db
     useEffect(() => {
-        fetch('http://localhost:3030/api/v1/categories')
+        fetch('http://localhost:3030/api/v1/categories', {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+        }})
         .then(response => {
             if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                 return response.json()
@@ -47,6 +53,9 @@ function Categories() {
     const handleDelete = async (categoryId) => {
         try {
             const response = await fetch(`http://localhost:3030/api/v1/categories/${categoryId}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                },
                 method: "DELETE"
             });
     
@@ -177,10 +186,20 @@ function Categories() {
 
     // return table
     return (
-        <div style={{padding: '0 50px'}}>
+        <>
             {contextHolder}
-            <Table dataSource={data} columns={columns} />;
-        </div>
+            {user.role === "admin" ? (
+                <div style={{padding: '0 50px'}}>
+                    <Table dataSource={data} columns={columns} />;
+                </div>
+            ) : (
+                <Result
+                    status="403"
+                    title="403"
+                    subTitle="Sorry, you are not authorized to access this page."
+                />
+            )}
+        </>
     );
 }
 export default Categories;

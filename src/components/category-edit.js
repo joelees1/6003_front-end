@@ -18,13 +18,13 @@ const CategoryEdit = (props) => {
 
     // gets the values from the form and puts them to the database
     const handleSubmit = async (values) => {
-        console.log('Received values:', values);
         try {
             const response = await fetch(`http://localhost:3030/api/v1/categories/${category.id}`, {
                 method: "PUT",
                 body: JSON.stringify(values),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 

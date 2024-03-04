@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Table, Space, notification } from 'antd';
+import { Button, Input, Table, Space, notification, Result } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+import UserContext from '../contexts/user';
 
 /*
  generates a table with the users of the website
@@ -11,12 +13,16 @@ import { SearchOutlined } from '@ant-design/icons';
 */
 
 function Users () {
+    const { user } = React.useContext(UserContext); // current user
     const [data, setData] = useState([]); // Start with an empty array
     const [api, contextHolder] = notification.useNotification();
 
     // getAll the users from the db
     useEffect(() => {
-        fetch('http://localhost:3030/api/v1/users')
+        fetch('http://localhost:3030/api/v1/users', {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+        }})
         .then(response => {
             if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                 return response.json()
@@ -45,6 +51,9 @@ function Users () {
     const handleDelete = async (userId) => {
         try {
             const response = await fetch(`http://localhost:3030/api/v1/users/${userId}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                },
                 method: "DELETE"
             });
     
@@ -137,7 +146,7 @@ function Users () {
             title: 'ID',
             dataIndex: 'id',
             ...getColumnSearchProps('id'),
-            render: (id) => <a href={`/users/${id}`}>{id}</a>,
+            render: (id) => <Link to={`/users/${id}`}>{id}</Link>,
         },
         {
             title: 'Username',
@@ -190,10 +199,22 @@ function Users () {
 
     // return table
     return (
-        <div style={{padding: '0 50px'}}>
-            {contextHolder}
-            <Table dataSource={data} columns={columns} />;
-        </div>
+        <>
+            {user.role === "admin" ? (
+                // if the user is an admin, display the table
+                <div style={{padding: '0 50px'}}>
+                    {contextHolder}
+                    <Table dataSource={data} columns={columns} />;
+                </div>
+            ) : (
+                // if the user is not an admin, display an error message
+                <Result
+                    status="403"
+                    title="403"
+                    subTitle="Sorry, you are not authorized to access this page."
+                />
+            )}
+        </>
     );
 }
 

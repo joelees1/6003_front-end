@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Image, Row, Col, Button, ConfigProvider, Result, notification, Space } from 'antd';
 import { CloseCircleTwoTone } from '@ant-design/icons'; /* can cause memory overflow in codio */
 import errorLoading from '../images/error-loading.png';
+import UserContext from '../contexts/user';
 
 import ProductEdit from './product-edit';
 
 
 function Product() {
+    const { user } = React.useContext(UserContext); // current user
     let { id } = useParams();
     const [refetchTrigger, setRefetchTrigger] = useState(false); //  State to trigger the re-fetch
     const [api, contextHolder] = notification.useNotification();
     const [product, setProduct] = useState(null);
     const [productImage, setProductImage] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         // fetch product data
@@ -81,6 +84,9 @@ function Product() {
     const handleDelete = async () => {
         try {
             const response = await fetch(`http://localhost:3030/api/v1/products/${id}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                },
                 method: "DELETE"
             });
     
@@ -91,9 +97,38 @@ function Product() {
 
             // redirect to the products page
             api.open({ message: 'Product Deleted', description: `Product ${id} has been deleted`, duration: 5, type: 'success' });
-            window.location.href = '/';
+            navigate('/');
 
         } catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
+    };
+
+    // purchase a product - post order
+    const handlePurchase = async () => {
+        const values = {
+            product_id: parseInt(id)
+        };
+        try {
+            const response = await fetch('http://localhost:3030/api/v1/orders', {
+                method: "POST",
+                body: JSON.stringify(values),
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                }
+            });
+
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Something went wrong');
+            }
+
+            api.open({ message: 'Success', description: 'Product has been purchased', duration: 5, type: 'success' });
+            setRefetchTrigger(!refetchTrigger); // refresh the page
+        }
+        catch (error) {
             console.error(error);
             api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
         }
@@ -112,20 +147,25 @@ function Product() {
                         <h1><i>{product.name}</i></h1>
                         <p>{product.creator}</p>
                     </Col>
-                    
+
                     <Col span={12} align="right">
-                        {/* only show price and option to buy if not sold */}
-                        {product.sold === 0 ? (
-                            <ConfigProvider theme={{components: {Button: {defaultHoverBorderColor: '#06b800', defaultHoverColor: '#06b800'}}}}>
-                                <h2>£{product.price}</h2>
-                                <Button className='purchase-button'>Purchase</Button>
-                            </ConfigProvider>
-                        ) : (
-                            <div>
-                                <span style={{ paddingRight: '10px' }}>sold</span>
-                                <span><CloseCircleTwoTone twoToneColor="#eb2f96" style={{ fontSize: '16px' }} /></span>
-                            </div>
-                        )}
+                        {
+                            product.sold !== 1 ? (
+                                <>
+                                    <h2>£{product.price}</h2>
+                                    {user.loggedIn ? (
+                                        <Button className='purchase-button' onClick={() => handlePurchase()}>Purchase</Button>
+                                    ) : (
+                                        <Button className='purchase-button' onClick={() => navigate('/login')}>Login to Purchase</Button>
+                                    )}
+                                </>
+                            ) : (
+                                <div>
+                                    <span style={{ paddingRight: '10px' }}>sold</span>
+                                    <span><CloseCircleTwoTone twoToneColor="#eb2f96" style={{ fontSize: '16px' }} /></span>
+                                </div>
+                            )
+                        }
                     </Col>
                 </Row>
 
@@ -133,12 +173,14 @@ function Product() {
                     <p>{product.description}</p>
                 </Row>
 
+                { user.role === 'admin' && (
                 <Row style={{justifyContent: 'center', marginBottom: '30px'}}>
                     <Space>
                         <ProductEdit product={product} onChange={handleProductEdit} />
                         <Button danger onClick={() => handleDelete()}>Delete</Button>
                     </Space>
                 </Row>
+                )}
             </div>
         </div>
     );

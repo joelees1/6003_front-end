@@ -11,14 +11,6 @@ const AddressInfoEdit = (props) => {
     const [open, setOpen] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
-    const showModal = () => {
-        setOpen(true);
-    };
-
-    const handleCancel = () => {
-        setOpen(false);
-    };
-
     // gets the values from the form and puts them to the address table
     const handleSubmit = async (values) => {
         try {
@@ -26,7 +18,8 @@ const AddressInfoEdit = (props) => {
                 method: "PUT",
                 body: JSON.stringify(values),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -43,6 +36,14 @@ const AddressInfoEdit = (props) => {
             console.error(error);
             api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
         }
+    };
+
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
     };
 
 

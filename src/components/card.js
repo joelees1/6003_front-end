@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Col, Image, Row } from 'antd';
 import errorLoading from '../images/error-loading.png';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'; /* can cause memory overflow in codio */
+import { Link } from 'react-router-dom';
 
 
 // Function to get the status icon based on the sold status
@@ -24,7 +25,7 @@ function getIcon(sold) {
     );
 }
 
-const ArtCard = ({ id, name, description, creator, price, sold, category_id, image_url }) => {
+const ArtCard = ({ id, name, creator, sold }) => {
     const Status = getIcon(sold);
 
     const [productImage, setProductImage] = React.useState(null);
@@ -62,7 +63,7 @@ const ArtCard = ({ id, name, description, creator, price, sold, category_id, ima
         >
             <Row style={{display: 'flex', alignItems: 'baseline'}}>
                 <Col style={{width: '70%', display: 'flex'}}>
-                    <h3><a href={`/products/${id}`}>{name}</a></h3>
+                    <h3><Link to={`/products/${id}`}>{name}</Link></h3>
                 </Col>
 
                 <Col style={{ width: '30%', display: 'flex', justifyContent: 'flex-end' }}>

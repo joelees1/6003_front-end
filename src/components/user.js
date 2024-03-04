@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Divider, Descriptions, Button, Space, notification, Result } from 'antd';
 import { ExportOutlined } from '@ant-design/icons';
 
 import UserInfoEdit from './user-info-edit';
 import UserAddressEdit from './user-address-edit';
 import NewAddress from './newAddress';
+import UserContext from '../contexts/user';
 
-function NotFound() {
-    return (
-        <Result
-            status="404"
-            title="404"
-            subTitle="Sorry, the page you visited does not exist."
-        />
-    );
-}
 
 /*
 This function fetches user and address data from the database and displays it in a user-friendly format.
@@ -26,6 +18,7 @@ if a user does not have an address, the address section is replaced with a butto
 if a user does not exist at all, a 404 error page is displayed instead
 */
 function Account(props) {
+    const { user } = React.useContext(UserContext); // current user
     let { id } = useParams();
     const [refetchTrigger, setRefetchTrigger] = useState(false); //  State to trigger the re-fetch
     const [api, contextHolder] = notification.useNotification();
@@ -42,7 +35,11 @@ function Account(props) {
     */
     useEffect(() => {
         // fetch user data
-        fetch(`http://localhost:3030/api/v1/users/${id}`)
+        fetch(`http://localhost:3030/api/v1/users/${id}`, {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+            }
+        })
             .then(response => {
                 if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                     return response.json()
@@ -58,17 +55,30 @@ function Account(props) {
                 data.updated_at = data.updated_at ? new Date(data.updated_at).toLocaleString() : null;
                 setUserData(data);
                 // description items inheriting user information
-                setUserItems([
-                    { key: '1', label: 'User Id', children: data.id },
-                    { key: '2', label: 'User Role', children: data.role },
-                    { key: '3', label: 'Username', children: data.username },
-                    { key: '4', label: 'First Name', children: data.first_name },
-                    { key: '5', label: 'Last Name', children: data.last_name },
-                    { key: '6', label: 'Email Address', children: data.email },
-                    { key: '7', label: 'Phone Number', children: data.phone_number },
-                    { key: '8', label: 'User Since', children: data.created_at },
-                    { key: '9', label: 'Last Updated', children: data.updated_at }
-                ]);
+                if (user.role === 'user') {
+                    setUserItems([
+                        { key: '1', label: 'User Id', children: data.id },
+                        { key: '3', label: 'Username', children: data.username },
+                        { key: '4', label: 'First Name', children: data.first_name },
+                        { key: '5', label: 'Last Name', children: data.last_name },
+                        { key: '6', label: 'Email Address', children: data.email },
+                        { key: '7', label: 'Phone Number', children: data.phone_number },
+                        { key: '8', label: 'User Since', children: data.created_at },
+                        { key: '9', label: 'Last Updated', children: data.updated_at }
+                    ]);
+                } else { // admin
+                    setUserItems([
+                        { key: '1', label: 'User Id', children: data.id },
+                        { key: '2', label: 'User Role', children: data.role },
+                        { key: '3', label: 'Username', children: data.username },
+                        { key: '4', label: 'First Name', children: data.first_name },
+                        { key: '5', label: 'Last Name', children: data.last_name },
+                        { key: '6', label: 'Email Address', children: data.email },
+                        { key: '7', label: 'Phone Number', children: data.phone_number },
+                        { key: '8', label: 'User Since', children: data.created_at },
+                        { key: '9', label: 'Last Updated', children: data.updated_at }
+                    ]);
+                }
             })
             .catch(error => { // unsuccessful response, with error from server
                 api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
@@ -77,7 +87,11 @@ function Account(props) {
             });
 
         // fetch address data
-        fetch(`http://localhost:3030/api/v1/users/${id}/address`)
+        fetch(`http://localhost:3030/api/v1/users/${id}/address`, {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+            }
+        })
             .then(response => {
                 if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                     if (response.status === 404) {
@@ -137,17 +151,36 @@ function Account(props) {
     }
 
     // handle address delete
-    const handleAddressDelete = () => {
-        api.open({ message: 'Address Deleted', description: 'Address has been deleted', duration: 5, type: 'success' });
+    // cant delete if a order is associated with the address
+    const handleAddressDelete = async () => {
+        try {
+            const response = await fetch(`http://localhost:3030/api/v1/users/${id}/address/${addressData.id}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                },
+                method: "DELETE"
+            });
+    
+            if (!response.ok) { 
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete address, check orders associated with address');
+            }
+            api.open({ message: 'address Deleted', description: `address ${addressData.id} has been deleted`, duration: 5, type: 'success' });
+
+        } catch (error) {
+            console.error(error);
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+        }
         setRefetchTrigger(!refetchTrigger); // trigger re-fetch
     }
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <>
             {contextHolder}
-            <div style={{ maxWidth: '800px', display: 'grid' }}>
-                {userData ? ( // if user exists
-                    <>
+            {userData ? (
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    {contextHolder}
+                    <div style={{ maxWidth: '800px', display: 'grid' }}>
                         <h1>Account Settings</h1>
                         <Divider />
 
@@ -183,14 +216,26 @@ function Account(props) {
 
                         <h3 style={{ margin: '0' }}>Order History</h3>
                         <div style={{ padding: '20px 0' }}>
-                            <Button href={'/orders'} block>Go to Your Orders<ExportOutlined /></Button>
+                            <Link to="/orders">
+                                <Button block>Go to Your Orders<ExportOutlined /></Button>
+                            </Link>
                         </div>
-                    </>
-                ) : ( // if user does not exist
-                    <NotFound />
-                )}
-            </div>
-        </div>
+                    </div>
+                </div>
+            ) : (userData === null && user.role === 'user') ? (
+                <Result
+                    status="403"
+                    title="403"
+                    subTitle="Sorry, you are not authorized to access this page."
+                />
+            ) : (
+                <Result
+                    status="404"
+                    title="404"
+                    subTitle="Sorry, the page you visited does not exist."
+                />
+            )}
+        </>
     );
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout, Result } from 'antd';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UserContext from './contexts/user';
 
 import './styles/App.css';
 import './styles/home.css';
@@ -19,7 +20,6 @@ import NewCategory from './components/newCategory'; // new category page (create
 import Users from './components/users'; // users page (getAllUsers)
 import User from './components/user'; // user page (getUserById)
 import Orders from './components/orders'; // orders page (getAllOrders)
-import Order from './components/order';	// order page (getOrderById)
 
 const { Header, Content, Footer } = Layout;
 
@@ -33,36 +33,67 @@ function NotFound() {
 	);
 }
 
-function App() {
+class App extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			user: { loggedIn: false },
+			token: localStorage.getItem('token') || null
+		}
+		this.login = this.login.bind(this);
+		this.logout = this.logout.bind(this);
+	}
 
-	return (
-		<Router>
-			<Layout className='layout'>
-				<Header className='header'>
-					<Navbar />
-				</Header>
+	login(user) {
+		console.log("User is now being set on the context");
+		user.loggedIn = true;
+		this.setState({ user: user });
+	}
 
-				<Content style={{ padding: '0 50px' }}>
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/newproduct" element={<NewProduct />} />
-						<Route path="/products/:id" element={<Product />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/register" element={<Register />} />
-						<Route path="/users/:id" element={<User />} />
-						<Route path="/users" element={<Users />} />
-						<Route path="/orders" element={<Orders />} />
-						<Route path="/orders/:id" element={<Order />} />
-						<Route path="/newcategory" element={<NewCategory />} />
-						<Route path="/categories" element={<Categories />} />
-						<Route path="*" element={<NotFound />} />
-					</Routes>
-				</Content>
+	logout() {
+		console.log("Removing user from the app context");
+		// Remove the token from the session storage
+		sessionStorage.removeItem('token');
+		this.setState({ user: { loggedIn: false } });
+	}
 
-				<Footer className='Footer'>Coventry Art Gallery 2024 Created by Joseph Lees</Footer>
-			</Layout>
-		</Router>
-	);
+	render() {
+		const context = {
+			user: this.state.user,
+			login: this.login,
+			logout: this.logout
+		  };
+		  
+		return (
+			<UserContext.Provider value={context}>
+				<Router>
+					<Layout className='layout'>
+						<Header className='header'>
+							<Navbar />
+						</Header>
+
+						<Content style={{ padding: '0 50px' }}>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/newproduct" element={<NewProduct />} />
+								<Route path="/products/:id" element={<Product />} />
+								<Route path="/login" element={<Login />} />
+								<Route path="/register" element={<Register />} />
+								<Route path="/users/:id" element={<User />} />
+								<Route path="/users" element={<Users />} />
+								<Route path="/orders" element={<Orders />} />
+								<Route path="/newcategory" element={<NewCategory />} />
+								<Route path="/categories" element={<Categories />} />
+								<Route path="*" element={<NotFound />} />
+							</Routes>
+						</Content>
+
+						<Footer className='Footer'>Coventry Art Gallery 2024 Created by Joseph Lees</Footer>
+					</Layout>
+				</Router>
+			</UserContext.Provider>
+		);
+	}
 }
 
 export default App;

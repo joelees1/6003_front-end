@@ -1,15 +1,51 @@
 import React from 'react';
-import { Form, Input, Button, Layout } from 'antd';
+import { Form, Input, Button, Layout, notification } from 'antd';
+import UserContext from '../contexts/user';
+import { useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 
+
 function Login() {
+    const [api, contextHolder] = notification.useNotification();
+    const authContext = React.useContext(UserContext);
+    const navigate = useNavigate();
+
     const onFinish = (values) => {
-        console.log('Received values:', values);
-    };
+
+        const { username, password } = values;
+
+        // Send a POST request to the server with the form data
+		fetch('http://localhost:3030/api/v1/login', {
+			method: "POST",
+			headers: {
+                "Authorization": "Bearer " + btoa(`${username}:${password}`)
+			}
+		})
+		.then(response => {
+			if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+				return response.json().then(err => {
+					throw new Error(err.error || 'Something went wrong');
+				});
+			}
+			return response.json(); // If the response is OK, proceed.
+		})
+		.then(user => { // successful response
+            sessionStorage.setItem('token', user.token); // store the token in the session storage
+            authContext.login({loggedIn: true, ...user});
+            api.open({ message: 'Login Successful', description: `Welcome ${user.username}`, duration: 5, type: 'success' });
+            // redirect to the home page
+            navigate('/');
+		})
+		.catch(error => { // unsuccessful response, with error from server
+			console.error(error);
+			api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+		});
+	};
 
     return (
         <div className='auth-layout-container'>
+            {contextHolder}
             <Layout className='auth auth-page'>
                 <Header className='auth auth-header'>
                     <h1 style={{ fontWeight: "bold" }}>Sign In</h1>

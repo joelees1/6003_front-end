@@ -22,7 +22,8 @@ const NewAddress = (props) => {
                 method: "POST",
                 body: JSON.stringify(values),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 

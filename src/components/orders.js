@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Table, Space, notification } from 'antd';
+import { Button, Input, Table, Space, notification, Result } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-
+import UserContext from '../contexts/user';
 import OrderEdit from './order-edit';
+import { Link } from 'react-router-dom';
 
 /* 
  generates a table with the orders from the database
@@ -13,13 +14,18 @@ import OrderEdit from './order-edit';
 */
 
 function Orders() {
+    const { user } = React.useContext(UserContext);
     const [data, setData] = useState([]); // Start with an empty array
     const [api, contextHolder] = notification.useNotification();
     const [refetchTrigger, setRefetchTrigger] = useState(false); //  State to trigger the re-fetch
 
     // getAll orders from the db
+    // if user role, only recieves orders for that user
     useEffect(() => {
-        fetch('http://localhost:3030/api/v1/orders')
+        fetch('http://localhost:3030/api/v1/orders', {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+        }})
         .then(response => {
             if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
                 return response.json()
@@ -47,6 +53,9 @@ function Orders() {
     const handleDelete = async (orderId) => {
         try {
             const response = await fetch(`http://localhost:3030/api/v1/orders/${orderId}`, {
+                headers: {
+                    "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+                },
                 method: "DELETE"
             });
     
@@ -144,12 +153,12 @@ function Orders() {
             title: 'ID',
             dataIndex: 'id',
             ...getColumnSearchProps('id'),
-            render: (id) => <a href={`/orders/${id}`}>{id}</a>,
         },
         {
             title: 'Product ID',
             dataIndex: 'product_id',
             ...getColumnSearchProps('product_id'),
+            render: (id) => <Link to={`/products/${id}`}>{id}</Link>,
         },
         {
             title: 'User ID',
@@ -191,12 +200,27 @@ function Orders() {
         },
     ];
 
+    // if user is user role, remove action column
+    if (user.role !== "admin") {
+        columns.pop();
+    }
+
     // return table
     return (
-        <div style={{padding: '0 50px'}}>
+        <>
             {contextHolder}
-            <Table dataSource={data} columns={columns} />;
-        </div>
+            {!user.loggedIn ? (
+                <Result
+                    status="403"
+                    title="403"
+                    subTitle="Sorry, you are not authorized to access this page."
+                />
+            ) : (
+                <div style={{padding: '0 50px'}}>
+                    <Table dataSource={data} columns={columns} />;
+                </div>
+            )}
+        </>
     );
 }
 
