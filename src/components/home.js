@@ -14,37 +14,64 @@ function Home() {
     const [totalArtLength, setTotalArtLength] = useState(10);
     const initialTotalArtLength = useRef();
     const [api, contextHolder] = notification.useNotification();
+    const [categories, setCategories] = useState([]);
 
     // fetch the art data from the database
     useEffect(() => {
         fetch('http://localhost:3030/api/v1/products')
-            .then(response => {
-                if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
-                    return response.json()
-                        .then(err => {
-                            throw new Error(err.error || 'Something went wrong');
-                        });
-                }
-                return response.json(); // If the response is OK, proceed.
-            })
-            .then(data => { // successful response
-                setArtData(data);
-                setInitialArtData(data);
-                setTotalArtLength(data.length);
-                initialTotalArtLength.current = data.length; // set the initial totalArtLength
-                // get 3 random items from the artData array
-                const randomItems = []; 
-                for (let i = 0; i < 3; i++) {
-                    const randomIndex = Math.floor(Math.random() * data.length);
-                    randomItems.push(data[randomIndex]);
-                }
-                setRandomItems(randomItems);
-                console.log(data)
-            })
-            .catch(error => { // unsuccessful response, with error from server
-                api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
-                console.error(error);
+        .then(response => {
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                return response.json()
+                    .then(err => {
+                        throw new Error(err.error || 'Something went wrong');
+                    });
+            }
+            return response.json(); // If the response is OK, proceed.
+        })
+        .then(data => { // successful response
+            setArtData(data);
+            setInitialArtData(data);
+            setTotalArtLength(data.length);
+            initialTotalArtLength.current = data.length; // set the initial totalArtLength
+            // get 3 random items from the artData array
+            const randomItems = []; 
+            for (let i = 0; i < 3; i++) {
+                const randomIndex = Math.floor(Math.random() * data.length);
+                randomItems.push(data[randomIndex]);
+            }
+            setRandomItems(randomItems);
+            console.log(data)
+        })
+        .catch(error => { // unsuccessful response, with error from server
+            api.open({ message: 'Error', description: error.message, duration: 5, type: 'error' });
+            console.error(error);
+        });
+        
+        // getAll categories from the db
+        fetch('http://localhost:3030/api/v1/categories', {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+        }})
+        .then(response => {
+            if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
+                return response.json()
+                    .then(err => {
+                        throw new Error(err.error || 'Something went wrong');
+                    });
+            }
+            return response.json(); // If the response is OK, proceed.
+        })
+        .then(data => { // successful response
+            const categories = data.map((category, index) => {
+                return { key: `2-${index}`, id: category.id, label: category.name };
             });
+            
+            setCategories(categories);
+            console.log(categories);
+        })
+        .catch(error => { // unsuccessful response, with error from server
+            console.error(error);
+        });
     }, [api]);
 
     /* Filters */
@@ -54,12 +81,12 @@ function Home() {
             label: 'Availability',
             children: [
                 {
-                    key: '1-1',
+                    key: '1-0',
                     id: 1,
                     label: 'Available',
                 },
                 {
-                    key: '1-2',
+                    key: '1-1',
                     id: 2,
                     label: 'Sold',
                 }
@@ -68,20 +95,11 @@ function Home() {
         {
             key: '2',
             label: 'Categories',
-            children: [
-                {
-                    key: '2-1',
-                    id: 1,
-                    label: 'Digital Art',
-                },
-                {
-                    key: '2-2',
-                    id: 2,
-                    label: 'Traditional Art',
-                }
-            ]
+            children: categories
         }
     ];
+
+    console.log(filters);
 
     const handleResetFilters = () => {
         if (!artData) return;
@@ -94,6 +112,8 @@ function Home() {
 
     const handleFilterClick = (e) => {
         if (!artData) return;
+
+        console.log(e);
 
         // find the filter and the child that was clicked
         const filter = filters.find(filter => filter.children.some(child => child.key === e.key));
