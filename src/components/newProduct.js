@@ -24,7 +24,10 @@ function NewProduct() {
         // Send a POST request to the server with the form data
 		fetch('http://localhost:3030/api/v1/products', {
 			method: "POST",
-			body: formData
+			body: formData,
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem('token')}`
+			}
 		})
 		.then(response => {
 			if (!response.ok) { // If the server responds with a bad HTTP status, throw an error.
